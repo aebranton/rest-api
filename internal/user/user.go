@@ -22,6 +22,14 @@ type Service struct {
 	DB *gorm.DB
 }
 
+// UserAuth - Type to allow post requests with username and password to authenticate a user.
+// Probably would do this differently and/or use auth0 or jwt or something, but wanted to have SOME way
+// To test this given its just a rest api
+type UserAuth struct {
+	Username string
+	Password string
+}
+
 // User - defines the user model/structure
 type User struct {
 	gorm.Model
@@ -136,10 +144,22 @@ func (s *Service) GetUser(ID uint) (User, error) {
 // GetUserByUsername - retreives users by username from the database
 func (s *Service) GetUserByUsername(username string) (User, error) {
 	var user User
-	if result := s.DB.Find(user).Where("username = ?", username); result.Error != nil {
+	if result := s.DB.Find(&user).Where("username = ?", username); result.Error != nil {
 		return User{}, result.Error
 	}
 	return user, nil
+}
+
+// AuthenticateUser - authenticates a user by username and password
+func (s *Service) AuthenticateUser(u UserAuth) (User, error) {
+	user, err := s.GetUserByUsername(u.Username)
+	if err != nil {
+		return User{}, err
+	}
+	if ComparePassword(u.Password, user.Password) {
+		return user, nil
+	}
+	return User{}, errors.New("Password authentication failed")
 }
 
 // CreateUser - creates a user in the database. Users do have a BeforeCreate hook to validate
@@ -157,6 +177,14 @@ func (s *Service) UpdateUser(ID uint, updatedUser User) (User, error) {
 	user, err := s.GetUser(ID)
 	if err != nil {
 		return User{}, err
+	}
+
+	if updatedUser.Password != "" {
+		hashed, err := HashPassword(updatedUser.Password)
+		if err != nil {
+			return User{}, err
+		}
+		updatedUser.Password = hashed
 	}
 
 	if result := s.DB.Model(&user).Updates(updatedUser); result.Error != nil {

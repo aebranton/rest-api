@@ -43,6 +43,10 @@ func (h *Handler) InitRoutes() {
 	h.Router.HandleFunc("/api/user/{id}", h.DeleteUser).Methods("DELETE")
 	h.Router.HandleFunc("/api/user/{id}", h.UpdateUser).Methods("PUT")
 
+	// I realize this is kind of strange, and also having a body in get is never something id usually do
+	// But since we are only making the rest api, i wanted to supply an endpoint to confirm auth works (basic though it is)
+	h.Router.HandleFunc("/api/auth/user", h.AuthenticateUser).Methods("GET")
+
 	// Adding a simple status check to make sure its online
 	h.Router.HandleFunc("/api/status", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -128,6 +132,28 @@ func (h *Handler) GetUserByUsername(w http.ResponseWriter, r *http.Request) {
 	user, err := h.Service.GetUserByUsername(username)
 	if err != nil {
 		h.WriteResponseMessage(w, http.StatusBadRequest, fmt.Sprintf("Error getting user with username: %s", username))
+		return
+	}
+
+	user.ToJSON(w)
+}
+
+// AuthenticateUser - Once more for the notes - this is a GET request with a BODY containing username and password json.
+// I knopw this isn't the RESTful way, and is not something I'd do in production, but since we are only building the rest api,
+// and not using 0auth or jwt or anything, i wanted to give some sort of super-basic user validation
+func (h *Handler) AuthenticateUser(w http.ResponseWriter, r *http.Request) {
+	var auth user.UserAuth
+	err := json.NewDecoder(r.Body).Decode(&auth)
+
+	if err != nil {
+		h.WriteResponseMessage(w, http.StatusBadRequest, "Failed to decode user Auth from requests JSON. Please make sure to provide a Username and Password field.")
+		return
+	}
+
+	user, err := h.Service.AuthenticateUser(auth)
+	if err != nil {
+
+		h.WriteResponseMessage(w, http.StatusBadRequest, fmt.Sprintf("%s", err))
 		return
 	}
 
