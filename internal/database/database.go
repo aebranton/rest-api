@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -11,17 +12,11 @@ import (
 func NewDatabase() (*gorm.DB, error) {
 	fmt.Println("Starting new database connection")
 
-	// dbUser := os.Getenv("DB_USERNAME")
-	// dbPass := os.Getenv("DB_PASSWORD")
-	// dbHost := os.Getenv("DB_HOST")
-	// dbTable := os.Getenv("DB_TABLE")
-	// dbPort := os.Getenv("DB_PORT")
-
-	dbUser := "postgres"
-	dbPass := "branton98"
-	dbHost := "localhost"
-	dbTable := "postgres"
-	dbPort := "5432"
+	dbUser := os.Getenv("DB_USERNAME")
+	dbPass := os.Getenv("DB_PASSWORD")
+	dbHost := os.Getenv("DB_HOST")
+	dbTable := os.Getenv("DB_TABLE")
+	dbPort := os.Getenv("DB_PORT")
 
 	// Creates the connection string for postgres, and disables ssl for this demo code
 	conStr := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",

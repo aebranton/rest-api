@@ -35,6 +35,7 @@ func (h *Handler) InitRoutes() {
 	fmt.Println("Building Routes")
 	h.Router = mux.NewRouter()
 
+	// Add user routes
 	h.Router.HandleFunc("/api/user/{id}", h.GetUser).Methods("GET")
 	h.Router.HandleFunc("/api/user", h.GetAllUsers).Methods("GET")
 	h.Router.HandleFunc("/api/user", h.GetAllUsers).Queries("username", "{username}").Methods("GET")
@@ -42,6 +43,7 @@ func (h *Handler) InitRoutes() {
 	h.Router.HandleFunc("/api/user/{id}", h.DeleteUser).Methods("DELETE")
 	h.Router.HandleFunc("/api/user/{id}", h.UpdateUser).Methods("PUT")
 
+	// Adding a simple status check to make sure its online
 	h.Router.HandleFunc("/api/status", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusOK)
