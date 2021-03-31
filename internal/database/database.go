@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -24,6 +25,24 @@ func NewDatabase() (*gorm.DB, error) {
 
 	// opens a gorm DB
 	db, err := gorm.Open("postgres", conStr)
+
+	// Sometimes docker takes a while to get the db up and running - the dependency in docker only waits for the
+	// service to be running, not ready. So, allow some retries.
+	retries := 3
+
+	for err != nil {
+		fmt.Printf("Failed to connect to database - retries remaining: %d\n", retries)
+		if retries > 0 {
+			retries--
+			time.Sleep(5 * time.Second)
+			fmt.Println(conStr)
+			db, err = gorm.Open("postgres", conStr)
+			continue
+		} else {
+			break
+		}
+	}
+
 	if err != nil {
 		return db, err
 	}

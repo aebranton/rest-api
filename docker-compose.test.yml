@@ -1,0 +1,43 @@
+version: "3.8"
+
+services:
+  db_test:
+    image: postgres:13.2-alpine
+    container_name: "udb-test"
+    restart: always
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=dummypass
+    networks:
+      - fullstack-test
+    volumes:
+      - /tmp:/tmp
+  
+  api_test:
+    restart: always
+    build: .
+    container_name: "users-rest-api-test"
+    environment:
+      DB_USERNAME: "postgres"
+      DB_PASSWORD: "dummypass"
+      DB_HOST: "udb-test"
+      DB_TABLE: "postgres"
+      DB_DB: "postgres"
+      DB_PORT: "5432"
+
+    ports:
+      - "8081:8080"
+    depends_on:
+      - db_test
+    networks:
+      - fullstack-test
+
+volumes:
+  database_postgres_test: 
+
+networks:
+  fullstack-test:
+    driver: bridge

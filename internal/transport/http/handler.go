@@ -37,8 +37,8 @@ func (h *Handler) InitRoutes() {
 
 	// Add user routes
 	h.Router.HandleFunc("/api/user/{id}", h.GetUser).Methods("GET")
+	h.Router.HandleFunc("/api/user", h.GetUserByUsername).Queries("username", "{username}").Methods("GET")
 	h.Router.HandleFunc("/api/user", h.GetAllUsers).Methods("GET")
-	h.Router.HandleFunc("/api/user", h.GetAllUsers).Queries("username", "{username}").Methods("GET")
 	h.Router.HandleFunc("/api/user", h.CreateUser).Methods("POST")
 	h.Router.HandleFunc("/api/user/{id}", h.DeleteUser).Methods("DELETE")
 	h.Router.HandleFunc("/api/user/{id}", h.UpdateUser).Methods("PUT")
