@@ -3,7 +3,8 @@ rest-api
 Test user API for Passio.
 
 **USAGE:**
-* To run the "production" version run:
+------------------------------------------------------------------------------------------------------------------------------
+* **To run the "production" version run:**
     * `docker-compose up --build`
     * use either postman, curl, or any other library of your choosing to create users in the database using the examples at the bottom of this file
     * the APIs routes will be:
@@ -15,7 +16,7 @@ Test user API for Passio.
         * http://localhost:8080/api/user/1 - DELETE - delete a user by ID
         * http://localhost:8080/api/auth/user - GET - **This is a strange one:** This GET request also takes a body. It is JSON with 2 fields: username and password. This endpoint will return the user object as JSON if the given password, once hashed, matches the stored password. Returns BadRequest(400) if the password doesnt match.
 
-* To run the tests (since this is not CI) run:
+* **To run the tests (since this is not CI) run:**
     * `docker-compose -f docker-compose.test.yml up --remove-orphans --force-recreate --build`
     * Then, from another cmd in this directory, run `go test --tags=e2e -v ./...`
     * To clean up, kill the process (Ctrl+C) and run `docker-compose -f docker-compose.test.yml down`
